@@ -2,7 +2,7 @@ use crate::{
     lisp::LispObject,
     lists::list,
     remacs_sys::{
-        directory_files_and_attributes_c, directory_files_c, file_attributes_c, globals,
+        Qdirectory_files_and_attributes, Qdirectory_files, file_attributes_c, globals,
         Qfile_attributes, Qnil,
     },
 };
