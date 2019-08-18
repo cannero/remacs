@@ -8,7 +8,7 @@ use crate::dired_unix::{
     get_users,
 };
 #[cfg(windows)]
-use dired_windows::{file_attributes_intro, get_groups, get_users};
+use crate::dired_windows::{file_attributes_intro, get_groups, get_users};
 
 use crate::{lisp::LispObject, lists::car, multibyte::LispStringRef, strings::string_lessp};
 
