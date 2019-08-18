@@ -13,7 +13,7 @@ use crate::{
     lists::{LispConsCircularChecks, LispConsEndChecks},
     remacs_sys::{
         clear_current_matrices, detect_input_pending_run_timers, dtotimespec, fset_redisplay,
-        mark_window_display_accurate, putchar_unlocked, redisplay_preserve_echo_area, ring_bell,
+        mark_window_display_accurate, redisplay_preserve_echo_area, ring_bell,
         specbind, swallow_events, timespec_add, timespec_sub, wait_reading_process_output,
     },
     remacs_sys::{
@@ -25,6 +25,14 @@ use crate::{
     threads::c_specpdl_index,
     windows::{LispWindowOrSelected, LispWindowRef},
 };
+
+#[cfg(not(windows))]
+use crate::remacs_sys::putchar_unlocked;
+#[cfg(windows)]
+extern "C" {
+    #[link_name = "putchar"]
+    fn putchar_unlocked(char: libc::c_int) -> libc::c_int;
+}
 
 pub type LispGlyphRef = ExternalPtr<Lisp_Glyph>;
 
