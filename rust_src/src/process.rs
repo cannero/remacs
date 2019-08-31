@@ -25,6 +25,9 @@ use crate::{
     vectors::LispVectorlikeRef,
 };
 
+#[cfg(windows)]
+use crate::remacs_sys::{SIGINT, SIGKILL, SIGQUIT};
+
 pub type LispProcessRef = ExternalPtr<Lisp_Process>;
 
 impl LispProcessRef {
@@ -550,8 +553,12 @@ pub fn internal_default_interrupt_process(
     process: LispObject,
     current_group: LispObject,
 ) -> LispObject {
+    #[cfg(windows)]
+    let sigint = SIGINT as i32;
+    #[cfg(not(windows))]
+    let sigint = libc::SIGINT;
     unsafe {
-        process_send_signal(process, libc::SIGINT, current_group, false);
+        process_send_signal(process, sigint, current_group, false);
     }
     process
 }
@@ -562,8 +569,12 @@ def_lisp_sym!(Qinternal_default_interrupt_process, "internal-default-interrupt-p
 /// See function `interrupt-process' for more details on usage.
 #[lisp_fn(min = "0")]
 pub fn kill_process(process: LispObject, current_group: LispObject) -> LispObject {
+    #[cfg(windows)]
+    let sigkill = SIGKILL as i32;
+    #[cfg(not(windows))]
+    let sigkill = libc::SIGKILL;
     unsafe {
-        process_send_signal(process, libc::SIGKILL, current_group, false);
+        process_send_signal(process, sigkill, current_group, false);
     }
     process
 }
@@ -572,8 +583,12 @@ pub fn kill_process(process: LispObject, current_group: LispObject) -> LispObjec
 /// See function `interrupt-process' for more details on usage.
 #[lisp_fn(min = "0")]
 pub fn quit_process(process: LispObject, current_group: LispObject) -> LispObject {
+    #[cfg(windows)]
+    let sigquit = SIGQUIT as i32;
+    #[cfg(not(windows))]
+    let sigquit = libc::SIGQUIT;
     unsafe {
-        process_send_signal(process, libc::SIGQUIT, current_group, false);
+        process_send_signal(process, sigquit, current_group, false);
     }
     process
 }
