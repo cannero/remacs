@@ -22,7 +22,7 @@ use crate::{
     remacs_sys,
     remacs_sys::infile,
     remacs_sys::{
-        block_input, build_string, getc_unlocked, maybe_quit, oblookup_last_bucket_number,
+        block_input, build_string, maybe_quit, oblookup_last_bucket_number,
         read_filtered_event, read_internal_start, readevalloop, specbind, staticpro,
         symbol_redirect, unblock_input,
     },
@@ -44,8 +44,21 @@ extern "C" {
     pub fn ferror_unlocked(arg1: *mut crate::remacs_sys::FILE) -> ::libc::c_int;
 }
 
-#[cfg(not(target_os = "macos"))]
+#[cfg(not(any(target_os = "macos", target_os = "windows")))]
 use crate::remacs_sys::{clearerr_unlocked, ferror_unlocked};
+
+#[cfg(not(target_os = "windows"))]
+use crate::remacs_sys::{getc_unlocked};
+
+#[cfg(target_os = "windows")]
+extern "C" {
+    #[link_name = "getc"]
+    pub fn getc_unlocked(file: *mut crate::remacs_sys::FILE) -> ::libc::c_int;
+    #[link_name = "clearerr"]
+    pub fn clearerr_unlocked(arg1: *mut crate::remacs_sys::FILE);
+    #[link_name = "ferror"]
+    pub fn ferror_unlocked(arg1: *mut crate::remacs_sys::FILE) -> ::libc::c_int;
+}
 
 // Define an "integer variable"; a symbol whose value is forwarded to a
 // C variable of type EMACS_INT.  Sample call (with "xx" to fool make-docfile):
