@@ -47,6 +47,18 @@ use crate::{
     windows::{selected_window, LispWindowRef},
 };
 
+#[cfg(windows)]
+use crate::remacs_sys::{geteuid, getuid};
+#[cfg(windows)]
+fn getgid() -> libc::c_uint {
+    //#HACK
+    123
+}
+#[cfg(windows)]
+fn getegid() -> libc::c_uint {
+    getgid()
+}
+
 /// Return value of point, as an integer.
 /// Beginning of buffer is position (point-min).
 #[lisp_fn]
@@ -786,7 +798,12 @@ pub fn char_equal(mut c1: Codepoint, mut c2: Codepoint) -> bool {
 /// Value is an integer or a float, depending on the value.
 #[lisp_fn]
 pub fn user_uid() -> LispObject {
+    #[cfg(windows)]
+    let id = unsafe { geteuid() };
+
+    #[cfg(not(windows))]
     let id = unsafe { libc::geteuid() };
+
     LispObject::int_or_float_from_fixnum(EmacsInt::from(id))
 }
 
@@ -794,7 +811,11 @@ pub fn user_uid() -> LispObject {
 /// Value is an integer or a float, depending on the value.
 #[lisp_fn]
 pub fn user_real_uid() -> LispObject {
+    #[cfg(windows)]
+    let id = unsafe { getuid() };
+    #[cfg(not(windows))]
     let id = unsafe { libc::getuid() };
+
     LispObject::int_or_float_from_fixnum(EmacsInt::from(id))
 }
 
@@ -802,6 +823,9 @@ pub fn user_real_uid() -> LispObject {
 /// Value is an integer or a float, depending on the value.
 #[lisp_fn]
 pub fn group_gid() -> LispObject {
+    #[cfg(windows)]
+    let id = unsafe { getegid() };
+    #[cfg(not(windows))]
     let id = unsafe { libc::getegid() };
     LispObject::int_or_float_from_fixnum(EmacsInt::from(id))
 }
@@ -810,6 +834,9 @@ pub fn group_gid() -> LispObject {
 /// Value is an integer or a float, depending on the value.
 #[lisp_fn]
 pub fn group_real_gid() -> LispObject {
+    #[cfg(windows)]
+    let id = unsafe { getgid() };
+    #[cfg(not(windows))]
     let id = unsafe { libc::getgid() };
     LispObject::int_or_float_from_fixnum(EmacsInt::from(id))
 }
