@@ -117,7 +117,10 @@ extern "C" {
     pub fn filemode_string(f: LispObject) -> LispObject;
 
     pub fn unchain_both(b: *mut Lisp_Buffer, ov: LispObject);
+    #[cfg(not(windows))]
     pub fn emacs_get_tty_pgrp(p: *mut Lisp_Process) -> libc::pid_t;
+    #[cfg(windows)]
+    pub fn emacs_get_tty_pgrp(p: *mut Lisp_Process) -> pid_t;
     pub fn update_buffer_properties(start: ptrdiff_t, end: ptrdiff_t);
     pub fn set_window_hscroll(w: *mut Lisp_Window, hscroll: EMACS_INT) -> Lisp_Object;
     pub fn scroll_command(n: Lisp_Object, direction: libc::c_int);
